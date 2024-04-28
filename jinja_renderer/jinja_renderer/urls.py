@@ -16,8 +16,9 @@ Including another URLconf
 """
 
 from django.urls import path
-from api.views import RenderAPIView
+import api.views as api_views
 
 urlpatterns = [
-    path('api/render/', RenderAPIView.as_view(), name='api-render'),
+    path('api/render/', api_views.RenderAPIView.as_view(), name='api-render'),
+    path('', api_views.index, name='index'),
 ]

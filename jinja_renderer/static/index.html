@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jinja Message Renderer</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Full jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Jinja Template Renderer</h2>
+                <form id="renderForm">
+                    <div class="form-group">
+                        <label for="jinjaMessage">Jinja Message:</label>
+                        <textarea class="form-control" id="jinjaMessage" rows="5"
+                            placeholder="Enter Jinja message"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="contextData">Context Data (JSON):</label>
+                        <textarea class="form-control" id="contextData" rows="5"
+                            placeholder='{"key": "value"}'></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Render Message</button>
+                </form>
+                <h3 class="mt-4">Rendered Result:</h3>
+                <div id="result" class="alert alert-success" role="alert" style="display: none;"></div>
+            </div>
+            <div class="col-md-6">
+                <h3>Sample Jinja Message:</h3>
+                <textarea id="sampleJinjaMessage" class="form-control" onclick="copyToClipboard('#sampleJinjaMessage')"
+                    readonly rows="5">{% if Policy.customer.language == 'ar' %}
+                    شكراً لاختيارك  للتأمين، يرجى تحميل وثيقة تأمينك من الرابط التالي
+                    {{site_url}}/api/v3/policy/{{Policy.policy_number|urlencode|replace('/','%2F')}}/coi/?last_name={{Hashed_last_name}}
+                    #تأمين الأجيال
+                    {% else %}
+                    Thank you for choosing  Insurance, please click the link to download your policy.
+                    {{site_url}}/api/v3/policy/{{Policy.policy_number|urlencode|replace('/','%2F')}}/coi/?last_name={{Hashed_last_name}}
+                    #InsuringGenerations
+                    {% endif %}</textarea>
+                <button onclick="copyToClipboard('#sampleJinjaMessage')" class="btn btn-secondary mt-2">Copy Jinja
+                    Message</button>
+                <h3 class="mt-4">Sample Context Data:</h3>
+                <textarea id="sampleContextData" class="form-control" onclick="copyToClipboard('#sampleContextData')"
+                    readonly rows="5">{
+    "Policy": {
+        "customer": {"language": "en"},
+        "policy_number": "POLICY/1234"
+    },
+    "site_url": "https://muzammilpeer.uk",
+    "Hashed_last_name": "hashedvalue"
+} </textarea>
+                <button onclick="copyToClipboard('#sampleContextData')" class="btn btn-secondary mt-2">Copy Context
+                    Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(elementId) {
+            var copyText = document.querySelector(elementId);
+            copyText.select();
+            document.execCommand("copy");
+        }
+
+        $('#renderForm').submit(function (event) {
+            event.preventDefault(); // Prevent the default form submit action
+            var jinjaMessage = $('#jinjaMessage').val().trim();
+            var contextData = $('#contextData').val().trim();
+
+            $.ajax({
+                url: 'https://jinja.muzammilpeer.uk/api/render/',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    jinja_message: jinjaMessage,
+                    context: JSON.parse(contextData)
+                }),
+                success: function (data) {
+                    $('#result').text(data.result).show();
+                },
+                error: function (xhr, status, error) {
+                    $('#result').text('Error: ' + error).show();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
