@@ -12,3 +12,5 @@ kubectl get hpa
 
 # smart refresh
 kubectl set image deployment/jinja-render jinja-render=muzammilpeer/jinja-render:latest --record
+
+![Sampel App interface](/jinja-sample-app.png)
